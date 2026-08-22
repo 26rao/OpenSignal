@@ -2,59 +2,59 @@
 
 These steps require your Bright Data account. Library scrapers do not qualify.
 
-## 0. Prefer long-tail public pages
+## 0. Target Directory Selection
 
 Use private foundations / residency directories / open-call aggregators.
 
 Do **not** use government websites (Rule 7).
 Avoid public university research-office domains; they are a gray area under the same rule.
 
-Default target:
-- https://artistcommunities.org/directory/open-calls
+### Primary Verified Target:
+- **NYFA Opportunities Board**: `https://www.nyfa.org/opportunities/`
+  - Verified active collector: `c_mt4in6dn1s7rasxppn` (configured in `.env` as `COLLECTOR_NYFA`)
+  - Directory structure: 24+ structured opportunities per batch with titles, locations, organizations, and application URLs.
+
+*(Note: `artistcommunities.org` was initially tested during exploratory development, but dropped because Scraper Studio was unable to generate a stable template for that domain. NYFA was selected and fully verified as the reliable primary source).*
+
+---
 
 ## 1. Login
 ```bash
 npx -p @brightdata/cli bdata login
 ```
 
-## 2. Staged create (recommended for a repeatable heal demo)
+---
 
-Start minimal so you can demonstrate heal by expanding fields.
+## 2. Verified Collector Workflow
 
-### Stage A — two fields only
+### Stage A — Create Collector
 ```bash
 npx -p @brightdata/cli bdata scraper create \
-  "https://artistcommunities.org/directory/open-calls" \
-  "Extract open call listings as a list of objects with keys: title, deadline."
+  "https://www.nyfa.org/opportunities/" \
+  "Extract opportunity listings as a list of objects with keys: title, url."
 ```
 
-Copy the returned Collector ID into `.env` as `COLLECTOR_ARTIST_COMMUNITIES`.
+Set the generated Collector ID in `.env` as `COLLECTOR_NYFA`.
 
-### Stage B — run once
+### Stage B — Run Collector
 ```bash
-npx -p @brightdata/cli bdata scraper run c_YOUR_ID \
-  "https://artistcommunities.org/directory/open-calls" --pretty
+npx -p @brightdata/cli bdata scraper run c_mt4in6dn1s7rasxppn \
+  "https://www.nyfa.org/opportunities/" --pretty
 ```
 
-Save that JSON as `data/examples/live_output.json` for submission.
-
-### Stage C — heal to add fields (demo beat)
+### Stage C — Self-Healing / Schema Expansion
 ```bash
-npx -p @brightdata/cli bdata scraper heal c_YOUR_ID \
-  "Add location, organization, and url fields to each listing object. Keep title and deadline. Return consistent non-empty values when present on the page."
+npx -p @brightdata/cli bdata scraper heal c_mt4in6dn1s7rasxppn \
+  "Add location and organization fields to each opportunity object. Keep title and url. Return consistent non-empty values when present on the page."
 
-npx -p @brightdata/cli bdata scraper approve c_YOUR_ID
+npx -p @brightdata/cli bdata scraper approve c_mt4in6dn1s7rasxppn
 ```
 
-### Stage D — re-run same Collector ID
+### Stage D — Re-run Same Collector ID
 ```bash
-npx -p @brightdata/cli bdata scraper run c_YOUR_ID \
-  "https://artistcommunities.org/directory/open-calls" --pretty
+npx -p @brightdata/cli bdata scraper run c_mt4in6dn1s7rasxppn \
+  "https://www.nyfa.org/opportunities/" --pretty
 ```
 
-Same `c_*`, wider schema, no downstream rewrite.
+The exact same `c_mt4in6dn1s7rasxppn` collector ID is maintained, data fields are expanded, and downstream orchestrator code runs seamlessly.
 
-## 3. Optional second source
-
-Only add another playbook after you have a real listing URL and a real collector ID.
-Do not point a collector at a blog homepage and expect opportunity fields back.

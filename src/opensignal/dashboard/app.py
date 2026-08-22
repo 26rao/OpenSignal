@@ -60,7 +60,7 @@ else:
 
 st.subheader("Opportunities by deadline urgency")
 if not ranked:
-    st.info("No data yet. Run `python -m opensignal.cli run --all` after configuring collectors.")
+    st.info("No data yet. Run `python -m opensignal.cli run nyfa_opportunities` after setting COLLECTOR_NYFA in .env.")
 else:
     for rec in ranked[:50]:
         dleft = days_until(rec.get("deadline"))

@@ -12,14 +12,24 @@
 
 ## 🎯 Problem & Solution
 
-Independent artists, researchers, and creators constantly monitor fragmented public directories for residencies, open calls, grants, and exhibition opportunities. These web pages change layout unpredictably, causing traditional rule-based web scrapers to break silently with empty or corrupted data fields.
+Independent artists, researchers, and creators constantly monitor fragmented public directories for residencies, open calls, grants, and exhibition opportunities. These web pages change layout unpredictably, causing traditional scrapers to break quietly with missing or corrupted fields.
 
 **OpenSignal** provides a resilient, self-maintaining extraction pipeline:
-1. **Bright Data Scraper Studio collectors** extract structured listing batches from target directories.
-2. **Local Batch Quality Gate** evaluates the entire result set against typed schema contracts.
-3. **Automated Self-Healing Loop** invokes `bdata scraper heal` with structured diagnostic prompts when quality drops below threshold.
-4. **Durable SQLite Storage** logs opportunity history, deduplicates records, and records heal audit events.
-5. **Urgency-Ranked Dashboard** surfaces opportunities prioritized by impending deadline deadlines.
+1. **Bright Data Scraper Studio Custom Collector** (`c_mt4in6dn1s7rasxppn`) extracts structured batches from the **NYFA Opportunities Board**.
+2. **Batch Quality Gate** validates field presence rates across the entire output batch against typed contracts.
+3. **Automated Self-Healing Loop** synthesizes targeted repair prompts and calls `bdata scraper heal` + `approve`, maintaining the exact same collector ID.
+4. **Deadline Intelligence & Normalization** extracts and normalizes application deadlines to ISO `YYYY-MM-DD` (or `null` when genuinely unavailable), prioritizing submission dates.
+5. **Durable SQLite Storage** automatically deduplicates/upserts opportunities by `(source, url)` and records heal audit events.
+6. **Urgency-Ranked Dashboard** prioritizes opportunities by impending deadlines (`⚠️ Urgent (<7d)`, `Soon (<30d)`, `Open`, `Rolling`).
+
+---
+
+## 🎯 Primary Target Directory
+
+- **Primary Source:** [NYFA Opportunities Board](https://www.nyfa.org/opportunities/)
+- **Collector ID:** `c_mt4in6dn1s7rasxppn` (configured in `.env` as `COLLECTOR_NYFA`)
+- **Verified Output:** 24 structured opportunities per batch (titles, organizations, locations, application URLs, and deadlines).
+- **Target Selection Note:** Private residency and arts directories only. Strictly excludes `.gov` and public university domains (Hackathon Rule 7). *(Artist Communities Alliance was initially explored but dropped because Scraper Studio was unable to generate a stable template for that domain; NYFA is the fully verified primary source).*
 
 ---
 
@@ -28,15 +38,21 @@ Independent artists, researchers, and creators constantly monitor fragmented pub
 ```
 ┌────────────────────────────────────────────────────────┐
 │             Target Public Opportunity Directory        │
-│          (e.g., Artist Communities Alliance, NYFA)     │
+│          NYFA Opportunities (nyfa.org/opportunities)   │
 └───────────────────────────┬────────────────────────────┘
                             │
                             ▼
               ┌───────────────────────────┐
-              │ Bright Data Scraper Studio│ (Collector ID: c_*)
+              │ Bright Data Scraper Studio│ (Collector ID: c_mt4in6dn1s7rasxppn)
               │      `bdata scraper run`  │
               └─────────────┬─────────────┘
-                            │ Structured JSON Batch
+                            │ Structured JSON Batch (24 records)
+                            ▼
+              ┌───────────────────────────┐
+              │    Deadline Intelligence  │ (Extracts & normalizes ISO YYYY-MM-DD
+              │       & Enrichment        │  dates from title/detail page; null if none)
+              └─────────────┬─────────────┘
+                            │
                             ▼
               ┌───────────────────────────┐
               │     Batch Quality Gate    │
@@ -45,7 +61,7 @@ Independent artists, researchers, and creators constantly monitor fragmented pub
               └──────┬─────────────┬──────┘
                      │             │
         Quality PASS │             │ Quality FAIL (< 85%)
-                     │             ▼
+        (Score: 1.0) │             ▼
                      │   ┌───────────────────────────┐
                      │   │   Automated Heal Engine   │
                      │   │   `bdata scraper heal`    │
@@ -61,6 +77,7 @@ Independent artists, researchers, and creators constantly monitor fragmented pub
                      ▼                 ▼
               ┌───────────────────────────┐
               │    SQLite Durable Store   │
+              │   • Upsert / Deduplication│
               │   • Opportunities Table   │
               │   • Heal Audit Events Log │
               └─────────────┬─────────────┘
@@ -79,13 +96,14 @@ Independent artists, researchers, and creators constantly monitor fragmented pub
 
 ## ✨ Key Features
 
-- **Typed Source Playbooks**: Declarative definitions in `config.py` specify required/optional fields, base URLs, and target thresholds.
-- **Batch Quality Gate**: Validates the *entire* batch output rather than a single sample row to prevent subtle partial data degradation.
+- **Custom Scraper Studio Collector**: Real collector `c_mt4in6dn1s7rasxppn` tailored for long-tail arts and creator opportunities.
+- **Batch Quality Gate**: Scores the entire batch rather than a single sample row to prevent silent extraction degradation.
 - **In-Place Collector Repair**: Uses Bright Data's `heal` and `approve` API, keeping the collector ID (`c_*`) stable without breaking downstream consumer code.
-- **Deadline Intelligence & Urgency Scoring**: Normalizes disparate date formats and ranks listings into `Urgent (<7d)`, `Soon (<30d)`, `Open`, and `Rolling`.
+- **Deadline Intelligence & Normalization**: Extracts explicit application deadlines, normalizes them to ISO `YYYY-MM-DD`, and ranks listings into `Urgent (<7d)`, `Soon (<30d)`, `Open`, and `Rolling`. Missing deadlines are cleanly marked as `null` without fabricating data.
+- **Deduplication & Storage**: Built-in SQLite upsert logic via `(source, url)` prevents duplicate rows across repeated scraper runs while updating latest dates.
 - **Operator-Friendly CLI**: Rich terminal tables and structured JSON diagnostics via Typer.
 - **Interactive Streamlit Dashboard**: Filter by source, inspect urgency badges, and review self-healing history.
-- **Zero Heavy Infra**: SQLite storage with zero external database dependencies for local execution.
+- **Zero Heavy Infra**: SQLite storage with portable Node/npx path detection across Windows, macOS, and Linux.
 
 ---
 
@@ -97,25 +115,27 @@ OpenSignal/
 │   └── ci.yml                 # Automated testing and linting CI workflow
 ├── data/
 │   └── examples/              # Verified sample and live collector outputs
-│       ├── live_output_res.json # Live run payload from Scraper Studio
+│       ├── live_output_res.json # Live 24-record payload from Scraper Studio
+│       ├── _brightdata_stdout.txt # Live polling & stdout logs from Bright Data run
 │       └── sample_output.json # Baseline schema example
 ├── docs/
 │   ├── CREATE_SCRAPERS.md     # Step-by-step guide to configure Scraper Studio
-│   └── DEMO.md                # 90-second video demo walkthrough script
+│   ├── DEMO.md                # 90-second video demo walkthrough script
+│   └── EVIDENCE.md            # Live run and self-healing execution proof
 ├── src/opensignal/
 │   ├── core/
 │   │   ├── config.py          # Typed playbooks & Pydantic settings
-│   │   ├── deadlines.py       # Date parsing & urgency ranking engine
+│   │   ├── deadlines.py       # Date parsing, normalization & urgency ranking
 │   │   ├── orchestrator.py    # Pipeline coordinator (Scrape → Gate → Heal → Store)
 │   │   └── quality.py         # Batch quality scoring & repair prompt synthesis
 │   ├── dashboard/
-│   └── app.py                 # Streamlit visual interface & urgency monitor
+│   │   └── app.py             # Streamlit visual interface & urgency monitor
 │   ├── heal/
 │   │   └── engine.py          # Bright Data CLI wrapper for heal/approve/run
 │   └── storage/
-│       └── db.py              # SQLite storage layer & audit logging
+│       └── db.py              # SQLite storage layer & upsert deduplication
 ├── tests/
-│   └── test_quality_and_deadlines.py # Unit tests for scoring & deadline ranking
+│   └── test_quality_and_deadlines.py # Unit tests for scoring, dates & storage
 ├── DISCLOSURE.md              # AI assistance declaration
 ├── pyproject.toml             # Project metadata & pytest configuration
 └── requirements.txt           # Python dependencies
@@ -150,12 +170,11 @@ Copy `.env.example` to `.env`:
 cp .env.example .env
 ```
 
-Update your `.env` with your Bright Data credentials and Collector IDs (see [docs/CREATE_SCRAPERS.md](docs/CREATE_SCRAPERS.md)):
+Update your `.env` with your Bright Data credentials and Collector ID (see [docs/CREATE_SCRAPERS.md](docs/CREATE_SCRAPERS.md)):
 
 ```ini
 BRIGHT_DATA_API_KEY=your_bright_data_api_key_here
-COLLECTOR_ARTIST_COMMUNITIES=c_YOUR_COLLECTOR_ID
-COLLECTOR_NYFA=c_YOUR_COLLECTOR_ID
+COLLECTOR_NYFA=c_mt4in6dn1s7rasxppn
 QUALITY_THRESHOLD=0.85
 AUTO_APPROVE_HEAL=false
 ```
@@ -172,16 +191,16 @@ python -m opensignal.cli status
 python -m opensignal.cli list-sources
 ```
 
-Execute scraping and quality evaluation:
+Execute scraping, deadline enrichment, and quality evaluation:
 ```bash
+# Run the primary NYFA collector
+python -m opensignal.cli run nyfa_opportunities
+
 # Run all enabled sources
 python -m opensignal.cli run --all
 
-# Run a specific playbook
-python -m opensignal.cli run artist_communities
-
 # Run with forced self-healing pass
-python -m opensignal.cli run artist_communities --force-heal
+python -m opensignal.cli run nyfa_opportunities --force-heal
 ```
 
 ### Launch the Streamlit Dashboard
@@ -196,7 +215,7 @@ Open `http://localhost:8501` to view ranked opportunities, filter by urgency, an
 
 ## 🧪 Testing
 
-OpenSignal includes comprehensive local unit tests for the quality scoring engine and deadline parsing logic that run without requiring Bright Data API calls:
+OpenSignal includes comprehensive local unit tests covering quality gate evaluation, deadline normalization, title/detail-page extraction, and SQLite upsert deduplication:
 
 ```bash
 pytest
@@ -207,7 +226,8 @@ pytest
 ## 🛡️ Hackathon Compliance & Ethics
 
 - **Bright Data Scraper Studio**: Core collector orchestration and healing strictly leverage Bright Data Scraper Studio CLI (`bdata`).
-- **Ethical Targets**: Only targets public artist directories (e.g. Artist Communities Alliance, NYFA).
+- **Live Evidence**: Documented in [`docs/EVIDENCE.md`](docs/EVIDENCE.md) with raw output in [`data/examples/live_output_res.json`](data/examples/live_output_res.json).
+- **Ethical Targets**: Only targets public artist directories (NYFA Opportunities Board).
 - **Rule 7 Compliance**: Strictly excludes `.gov` and public government research offices.
 - **AI Disclosure**: Transparent AI usage disclosure provided in [DISCLOSURE.md](DISCLOSURE.md).
 

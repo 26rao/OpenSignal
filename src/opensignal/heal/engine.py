@@ -9,6 +9,9 @@ from __future__ import annotations
 import json
 import logging
 import subprocess
+import os
+import shutil
+import sys
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List
@@ -19,6 +22,21 @@ from opensignal.core.config import SourcePlaybook
 from opensignal.core.quality import QualityReport
 
 logger = logging.getLogger(__name__)
+
+
+def _resolve_npx_cmd() -> List[str]:
+    """Resolve npx across PATH and Windows default installation locations."""
+    npx = shutil.which("npx") or shutil.which("npx.cmd")
+    if npx:
+        return [npx]
+    if sys.platform.startswith("win"):
+        for path in [
+            r"C:\Program Files\nodejs\npx.cmd",
+            r"C:\Program Files (x86)\nodejs\npx.cmd",
+        ]:
+            if os.path.exists(path):
+                return [path]
+    return ["npx"]
 
 
 class HealCLIError(RuntimeError):
@@ -42,10 +60,17 @@ class HealEngine:
         retry=retry_if_exception_type(HealCLIError),
     )
     def _run_cli(self, args: List[str]) -> subprocess.CompletedProcess:
-        cmd = ["npx", "-p", "@brightdata/cli", "bdata"] + args
+        cmd = _resolve_npx_cmd() + ["-p", "@brightdata/cli", "bdata"] + args
         logger.info("Running: %s", " ".join(cmd))
         try:
-            result = subprocess.run(cmd, capture_output=True, text=True, timeout=300)
+            result = subprocess.run(
+                cmd,
+                capture_output=True,
+                text=True,
+                timeout=300,
+                encoding="utf-8",
+                errors="replace",
+            )
         except subprocess.TimeoutExpired as exc:
             raise HealCLIError(f"CLI timed out: {args}") from exc
         except OSError as exc:

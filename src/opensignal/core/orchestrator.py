@@ -23,12 +23,31 @@ from tenacity import (
 )
 
 from opensignal.core.config import SourcePlaybook, Settings, default_playbooks
+from opensignal.core.deadlines import enrich_opportunity_deadlines
 from opensignal.core.quality import evaluate
 from opensignal.heal.engine import HealEngine
 from opensignal.storage.db import init_db, save_opportunities, save_heal_event
 
 
 logger = logging.getLogger(__name__)
+
+
+def _resolve_npx_cmd() -> List[str]:
+    """Resolve npx across PATH and Windows default installation locations."""
+    import shutil
+    import sys
+
+    npx = shutil.which("npx") or shutil.which("npx.cmd")
+    if npx:
+        return [npx]
+    if sys.platform.startswith("win"):
+        for path in [
+            r"C:\Program Files\nodejs\npx.cmd",
+            r"C:\Program Files (x86)\nodejs\npx.cmd",
+        ]:
+            if os.path.exists(path):
+                return [path]
+    return ["npx"]
 
 
 class CollectorCLIError(RuntimeError):
@@ -78,9 +97,7 @@ class Orchestrator:
                 f"(got: {collector_id!r})."
             )
 
-        # Windows: use the exact npx.cmd path confirmed on this machine.
-        cmd = [
-            r"C:\Program Files\nodejs\npx.cmd",
+        cmd = _resolve_npx_cmd() + [
             "-p",
             "@brightdata/cli",
             "bdata",
@@ -259,6 +276,7 @@ class Orchestrator:
         )
 
         summary["records_fetched"] = len(records)
+        records = enrich_opportunity_deadlines(records)
 
         report = evaluate(
             records,
@@ -320,6 +338,7 @@ class Orchestrator:
                 playbook.collector_id,
                 playbook.base_url,
             )
+            records2 = enrich_opportunity_deadlines(records2)
 
             report2 = evaluate(
                 records2,
