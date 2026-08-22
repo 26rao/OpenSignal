@@ -1,0 +1,26 @@
+# Secrets and local env
+.env
+.env.local
+*.pem
+
+# Python
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Local runtime data
+data/*.db
+data/heal_history/
+data/examples/live_output.json
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/
+.qodo/
+*.swp

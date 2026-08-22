@@ -1,0 +1,26 @@
+{
+  "_comment": "Illustrative schema example only — replace with output from a live `bdata scraper run` before submission.",
+  "records": [
+    {
+      "title": "MacDowell Spring Summer 2027",
+      "deadline": "September 10, 2026",
+      "location": "New Hampshire, United States",
+      "organization": "MacDowell",
+      "url": "https://www.macdowell.org/apply"
+    },
+    {
+      "title": "Hambidge Residency Spring 2027 Session",
+      "deadline": "September 15, 2026",
+      "location": "Georgia, United States",
+      "organization": "Hambidge Center for Creative Arts and Sciences",
+      "url": "https://www.hambidge.org/residencies"
+    },
+    {
+      "title": "Rolling Open Studio Call",
+      "deadline": "Rolling",
+      "location": "Madrid, Spain",
+      "organization": "Example Arts Space",
+      "url": "https://example-arts-space.org/open-call"
+    }
+  ]
+}
