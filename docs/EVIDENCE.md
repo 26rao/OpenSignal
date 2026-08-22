@@ -1,73 +1,61 @@
 # OpenSignal — Bright Data Scraper Studio Evidence Log
 
-This document records the verified live execution, custom collector configuration, and self-healing lifecycle for OpenSignal.
+This document provides a factual record of the live execution, custom collector configuration, and self-healing lifecycle for OpenSignal.
 
 ---
 
-## 1. Collector Details
+## 1. Collector Configuration
 
-- **Target Source:** NYFA Opportunities Board
+- **Primary Source:** NYFA Opportunities Board
 - **Target URL:** `https://www.nyfa.org/opportunities/`
 - **Collector ID:** `c_mt4in6dn1s7rasxppn`
-- **Collector Type:** Custom Scraper Studio Collector (created on participant account)
-- **Extracted Fields (Raw Collector):** `title`, `location`, `organization`, `url`, `deadline` (when present on list cards)
+- **Collector Type:** Custom Scraper Studio Collector created on participant account
 
 ---
 
-## 2. Live Scraper Execution & Proof
+## 2. Execution Stages & What the Data Proves
 
-### Command
+### A. Baseline Scraper Run
 ```bash
 npx -p @brightdata/cli bdata scraper run c_mt4in6dn1s7rasxppn \
   "https://www.nyfa.org/opportunities/" --pretty
 ```
-
-### Verified Execution Output Summary
-- **Response ID:** `d2t1787421744937r0rllu46kdvg`
+- **CLI Response ID:** `d2t1787421744937r0rllu46kdvg`
 - **Records Returned:** 24 structured opportunity listings
-- **Raw Listing Fields:** `title` (24/24), `location` (24/24), `organization` (24/24), `url` (24/24), `deadline` (1/24 on list card)
-- **Raw CLI Artifacts:** Preserved in [`data/examples/live_output_nyfa.json`](../data/examples/live_output_nyfa.json) and [`data/examples/_brightdata_stdout.txt`](../data/examples/_brightdata_stdout.txt)
+- **Raw CLI Artifact:** Preserved in [`data/examples/live_output_res.json`](../data/examples/live_output_res.json) and [`data/examples/_brightdata_stdout.txt`](../data/examples/_brightdata_stdout.txt)
 
----
-
-## 3. Self-Healing & Schema Expansion Proof
-
-### Heal Command Sent
+### B. Self-Healing & Approval Operation
 ```bash
+# Diagnostic heal prompt submitted to Scraper Studio
 npx -p @brightdata/cli bdata scraper heal c_mt4in6dn1s7rasxppn \
   "Add location and organization fields to each opportunity object. Keep title and url. Return consistent non-empty values when present on the page."
-```
 
-### Approval
-```bash
+# Approve repair
 npx -p @brightdata/cli bdata scraper approve c_mt4in6dn1s7rasxppn
 ```
 
-### Post-Heal Re-run on Same Collector ID
+### C. Post-Heal Re-run on Same Collector ID
 ```bash
 npx -p @brightdata/cli bdata scraper run c_mt4in6dn1s7rasxppn \
   "https://www.nyfa.org/opportunities/" --pretty
 ```
+- **Collector ID Stability:** The scraper continues to run on the exact same `c_mt4in6dn1s7rasxppn` collector ID across repair and production execution.
+- **Audit Lineage:** Heal events are recorded in SQLite `heal_events` table.
 
-- **Collector ID Stability:** Maintained stable `c_mt4in6dn1s7rasxppn` ID across creation, healing, and production runs.
-- **Lineage:** Recorded in SQLite table `heal_events`.
+### D. What the Current Live JSON Actually Proves:
+1. **Reliable Listing Fields:** `title` (24/24), `location` (24/24), `organization` (24/24), and `url` (24/24) are consistently extracted from the listing cards.
+2. **Deadline Sparsity on List View:** `deadline` is present on approximately 1 listing card (`Annual Members Exhibition... / Deadline 9/15/2026`). The raw listing JSON does **not** prove full-batch deadline coverage from the listing page alone.
+3. **No Fabricated Deadlines:** In accordance with data integrity rules, unlisted deadlines are left as `null` in the raw data rather than being synthetic or guessed.
+4. **Pipeline Enrichment & Quality Gate:** The local Python pipeline inspects titles and opportunity detail pages for explicit submission dates, normalizes valid dates to ISO `YYYY-MM-DD`, and evaluates quality contracts (`title`, `url` required=True).
 
 ---
 
-## 4. End-to-End Orchestration & Quality Gate
+## 3. End-to-End CLI Pipeline Run
 
-### Pipeline Execution & Quality Gate
 ```bash
 python -m opensignal.cli run nyfa_opportunities
 ```
 
-### Verified Pipeline Flow:
-1. **Raw Scrape:** Collector returns 24 opportunities from list view (`title`: 24/24, `location`: 24/24, `organization`: 24/24, `url`: 24/24, list card `deadline`: 1/24).
-2. **Deadline Enrichment:** Python pipeline inspects titles and opportunity detail pages for explicit submission deadlines, normalizing valid dates to ISO `YYYY-MM-DD` (`null` when genuinely absent, preventing fabricated dates).
-3. **Batch Quality Gate:** Validates batch completeness against required playbook contracts (`title`, `url` required=True → 100% presence / quality score 1.0).
-4. **SQLite Storage:** Upserts opportunities using `(source, url)` as unique key to prevent duplicate rows across repeated runs.
-
-### Operator CLI Run Output
 ```
                       OpenSignal Run Summary                      
 +----------------------------------------------------------------+
@@ -90,4 +78,13 @@ python -m opensignal.cli run nyfa_opportunities
   }
 ]
 ```
+*(Note: Quality score 1.0 reflects 100% presence of the required playbook contract fields `title` and `url`).*
 
+---
+
+## 4. Submission Status
+
+- **Code & Test Suite:** Completed (all 9 unit tests pass).
+- **Live Scraper Studio Collector:** Verified on participant account (`c_mt4in6dn1s7rasxppn`).
+- **Raw Output Artifacts:** Committed in [`data/examples/live_output_res.json`](../data/examples/live_output_res.json).
+- **Demo Video:** **Not yet recorded / pending recording by participant** following [`docs/DEMO.md`](DEMO.md).

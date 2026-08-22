@@ -1,5 +1,5 @@
 {
-  "_comment": "Illustrative schema example only — replace with output from a live `bdata scraper run` before submission.",
+  "_comment": "Illustrative baseline schema example only — not live Bright Data output. See live_output_nyfa.json for verified CLI run output.",
   "records": [
     {
       "title": "MacDowell Spring Summer 2027",

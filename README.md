@@ -6,7 +6,8 @@
 [![Hackathon: Into the Scrape-Verse](https://img.shields.io/badge/Hackathon-Into_the_Scrape--Verse-orange.svg)](https://www.wemakedevs.org/hackathons/scrape-verse)
 
 > **Self-healing long-tail opportunity monitor for artists, researchers, and creators.**  
-> Built for the **Into the Scrape-Verse** hackathon (WeMakeDevs × Bright Data, August 2026).
+> Built for the **Into the Scrape-Verse** hackathon (WeMakeDevs × Bright Data, August 2026).  
+> 📹 **Demo Walkthrough Script:** [`docs/DEMO.md`](docs/DEMO.md) *(Video recording in progress)*
 
 ---
 

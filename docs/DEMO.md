@@ -14,12 +14,12 @@ Use the verified NYFA collector flow from `CREATE_SCRAPERS.md`. Rehearse once be
 
 | Time | Beat | On screen | Say / caption |
 |------|------|-----------|---------------|
-| 0:00–0:10 | Pain | Target page (`https://www.nyfa.org/opportunities/`) | "Artists, researchers, and creators manually check fragmented boards for deadlines." |
-| 0:10–0:20 | Collector exists | `python -m opensignal.cli list-sources` showing real `c_*` | "Custom Bright Data Scraper Studio collector configured." |
-| 0:20–0:35 | Minimal run | `bdata scraper run c_mt4in6dn1s7rasxppn <url> --pretty` → structured batch | "Collects opportunities reliably from the live target." |
+| 0:00–0:10 | Pain | Target page (`https://www.nyfa.org/opportunities/`) | "Artists, researchers, and creators manually check fragmented boards for opportunity deadlines." |
+| 0:10–0:20 | Collector exists | `python -m opensignal.cli list-sources` showing real `c_*` | "Custom Bright Data Scraper Studio collector configured (NYFA opportunities)." |
+| 0:20–0:35 | Baseline run | `bdata scraper run c_mt4in6dn1s7rasxppn <url> --pretty` → structured batch | "Collects opportunities reliably (titles, organizations, locations, URLs)." |
 | 0:35–1:00 | **Heal (hero)** | Full heal command + approve in real time | "Bright Data self-heals the scraper without changing the collector ID." |
-| 1:00–1:15 | Re-run same ID | `python -m opensignal.cli run nyfa_opportunities` → quality 1.0, 24 records | "Same collector ID. Schema enriched. Passed batch quality gate." |
-| 1:15–1:30 | Product | Cut to Streamlit dashboard, urgency badges visible | "Ranked by deadline urgency so nothing critical is buried." |
+| 1:00–1:15 | Re-run same ID | `python -m opensignal.cli run nyfa_opportunities` → quality report | "Same collector ID. Evaluated by local Quality Gate; deadline normalized when available." |
+| 1:15–1:30 | Product | Cut to Streamlit dashboard, urgency badges visible | "Ranked by deadline urgency so impending deadlines are never buried." |
 
 ## Commands to keep in a paste buffer
 
