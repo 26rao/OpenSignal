@@ -24,11 +24,11 @@ npx -p @brightdata/cli bdata scraper run c_mt4in6dn1s7rasxppn \
 - **Records Returned:** 24 structured opportunity listings
 - **Raw CLI Artifact:** Preserved in [`data/examples/live_output_res.json`](../data/examples/live_output_res.json) and [`data/examples/_brightdata_stdout.txt`](../data/examples/_brightdata_stdout.txt)
 
-### B. Self-Healing & Approval Operation
+### B. Self-Healing & Repair Operation
 ```bash
 # Diagnostic heal prompt submitted to Scraper Studio
 npx -p @brightdata/cli bdata scraper heal c_mt4in6dn1s7rasxppn \
-  "Add location and organization fields to each opportunity object. Keep title and url. Return consistent non-empty values when present on the page."
+  "On listing cards, capture deadline date when visible. Keep title, location, organization, and url. Maintain consistent schema."
 
 # Approve repair
 npx -p @brightdata/cli bdata scraper approve c_mt4in6dn1s7rasxppn
@@ -39,7 +39,8 @@ npx -p @brightdata/cli bdata scraper approve c_mt4in6dn1s7rasxppn
 npx -p @brightdata/cli bdata scraper run c_mt4in6dn1s7rasxppn \
   "https://www.nyfa.org/opportunities/" --pretty
 ```
-- **Collector ID Stability:** The scraper continues to run on the exact same `c_mt4in6dn1s7rasxppn` collector ID across repair and production execution.
+- **Collector ID Stability:** The scraper continues to run on the exact same `c_mt4in6dn1s7rasxppn` collector ID across repair and production execution without breaking downstream code.
+- **Outcome:** The live list view consistently returns `title`, `location`, `organization`, and `url`; listing-card deadlines remain sparse (~1/24) on the board view, which the downstream pipeline handles cleanly without fabrication.
 - **Audit Lineage:** Heal events are recorded in SQLite `heal_events` table.
 
 ### D. What the Current Live JSON Actually Proves:
