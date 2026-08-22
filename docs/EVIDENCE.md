@@ -56,18 +56,18 @@ npx -p @brightdata/cli bdata scraper run c_mt4in6dn1s7rasxppn \
 
 ## 4. End-to-End Orchestration & Quality Gate
 
-### Pipeline Execution
+### Pipeline Execution & Quality Gate
 ```bash
 python -m opensignal.cli run nyfa_opportunities
 ```
 
-### Workflow:
-1. **Raw Scrape:** Collector returns 24 opportunities from list view.
-2. **Deadline Enrichment:** Python pipeline checks titles and opportunity detail pages for explicit submission deadlines, normalizing valid dates to ISO `YYYY-MM-DD` (`null` when genuinely absent, avoiding fabricated dates).
-3. **Batch Quality Gate:** Validates batch completeness against required playbook contracts (`title`, `url`).
-4. **SQLite Storage:** Upserts opportunities using `(source, url)` as unique key to prevent duplicates.
+### Verified Pipeline Flow:
+1. **Raw Scrape:** Collector returns 24 opportunities from list view (`title`: 24/24, `location`: 24/24, `organization`: 24/24, `url`: 24/24, list card `deadline`: 1/24).
+2. **Deadline Enrichment:** Python pipeline inspects titles and opportunity detail pages for explicit submission deadlines, normalizing valid dates to ISO `YYYY-MM-DD` (`null` when genuinely absent, preventing fabricated dates).
+3. **Batch Quality Gate:** Validates batch completeness against required playbook contracts (`title`, `url` required=True → 100% presence / quality score 1.0).
+4. **SQLite Storage:** Upserts opportunities using `(source, url)` as unique key to prevent duplicate rows across repeated runs.
 
-### Run Summary Output
+### Operator CLI Run Output
 ```
                       OpenSignal Run Summary                      
 +----------------------------------------------------------------+
@@ -90,3 +90,4 @@ python -m opensignal.cli run nyfa_opportunities
   }
 ]
 ```
+

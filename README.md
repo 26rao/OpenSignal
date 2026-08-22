@@ -227,13 +227,27 @@ pytest
 ## 🛡️ Hackathon Compliance & Ethics
 
 - **Bright Data Scraper Studio**: Core collector orchestration and healing strictly leverage Bright Data Scraper Studio CLI (`bdata`).
-- **Live Evidence**: Documented in [`docs/EVIDENCE.md`](docs/EVIDENCE.md) with raw output in [`data/examples/live_output_res.json`](data/examples/live_output_res.json).
+- **Live Evidence**: Documented in [`docs/EVIDENCE.md`](docs/EVIDENCE.md) with raw output in [`data/examples/live_output_nyfa.json`](data/examples/live_output_nyfa.json).
 - **Ethical Targets**: Only targets public artist directories (NYFA Opportunities Board).
 - **Rule 7 Compliance**: Strictly excludes `.gov` and public government research offices.
 - **AI Disclosure**: Transparent AI usage disclosure provided in [DISCLOSURE.md](DISCLOSURE.md).
 
 ---
 
+## 📋 Submission Checklist
+
+- [x] Custom Scraper Studio scraper created on participant account (`c_mt4in6dn1s7rasxppn`)
+- [x] Public source-code repository
+- [x] Accurate & comprehensive README
+- [x] Clean structured output from a **live** run ([`data/examples/live_output_nyfa.json`](data/examples/live_output_nyfa.json))
+- [x] Documented self-healing execution & evidence ([`docs/EVIDENCE.md`](docs/EVIDENCE.md))
+- [x] Explanation of how Bright Data Scraper Studio is used
+- [x] AI assistance disclosed in [`DISCLOSURE.md`](DISCLOSURE.md)
+- [ ] Demo video recording following [`docs/DEMO.md`](docs/DEMO.md)
+
+---
+
 ## 📜 License
 
 MIT License. Developed for the 2026 **Into the Scrape-Verse** Hackathon.
+
