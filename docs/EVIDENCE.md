@@ -10,7 +10,7 @@ This document records the verified live execution, custom collector configuratio
 - **Target URL:** `https://www.nyfa.org/opportunities/`
 - **Collector ID:** `c_mt4in6dn1s7rasxppn`
 - **Collector Type:** Custom Scraper Studio Collector (created on participant account)
-- **Extracted Fields:** `title`, `url`, `location`, `organization`, `deadline`
+- **Extracted Fields (Raw Collector):** `title`, `location`, `organization`, `url`, `deadline` (when present on list cards)
 
 ---
 
@@ -25,7 +25,8 @@ npx -p @brightdata/cli bdata scraper run c_mt4in6dn1s7rasxppn \
 ### Verified Execution Output Summary
 - **Response ID:** `d2t1787421744937r0rllu46kdvg`
 - **Records Returned:** 24 structured opportunity listings
-- **Raw CLI Artifact:** Preserved in [`data/examples/live_output_res.json`](../data/examples/live_output_res.json) and [`data/examples/_brightdata_stdout.txt`](../data/examples/_brightdata_stdout.txt)
+- **Raw Listing Fields:** `title` (24/24), `location` (24/24), `organization` (24/24), `url` (24/24), `deadline` (1/24 on list card)
+- **Raw CLI Artifacts:** Preserved in [`data/examples/live_output_nyfa.json`](../data/examples/live_output_nyfa.json) and [`data/examples/_brightdata_stdout.txt`](../data/examples/_brightdata_stdout.txt)
 
 ---
 
@@ -55,12 +56,18 @@ npx -p @brightdata/cli bdata scraper run c_mt4in6dn1s7rasxppn \
 
 ## 4. End-to-End Orchestration & Quality Gate
 
-### Command
+### Pipeline Execution
 ```bash
 python -m opensignal.cli run nyfa_opportunities
 ```
 
-### Run Output
+### Workflow:
+1. **Raw Scrape:** Collector returns 24 opportunities from list view.
+2. **Deadline Enrichment:** Python pipeline checks titles and opportunity detail pages for explicit submission deadlines, normalizing valid dates to ISO `YYYY-MM-DD` (`null` when genuinely absent, avoiding fabricated dates).
+3. **Batch Quality Gate:** Validates batch completeness against required playbook contracts (`title`, `url`).
+4. **SQLite Storage:** Upserts opportunities using `(source, url)` as unique key to prevent duplicates.
+
+### Run Summary Output
 ```
                       OpenSignal Run Summary                      
 +----------------------------------------------------------------+
@@ -83,8 +90,3 @@ python -m opensignal.cli run nyfa_opportunities
   }
 ]
 ```
-
-### Database Persistence
-- **Storage:** SQLite (`data/opensignal.db`)
-- **Upsert / Deduplication:** Guaranteed unique across runs via `(source, url)` key.
-- **Deadline Intelligence:** Normalized ISO `YYYY-MM-DD` dates with urgency ranking surfaced in Streamlit UI.

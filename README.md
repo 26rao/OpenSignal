@@ -15,10 +15,10 @@
 Independent artists, researchers, and creators constantly monitor fragmented public directories for residencies, open calls, grants, and exhibition opportunities. These web pages change layout unpredictably, causing traditional scrapers to break quietly with missing or corrupted fields.
 
 **OpenSignal** provides a resilient, self-maintaining extraction pipeline:
-1. **Bright Data Scraper Studio Custom Collector** (`c_mt4in6dn1s7rasxppn`) extracts structured batches from the **NYFA Opportunities Board**.
+1. **Bright Data Scraper Studio Custom Collector** (`c_mt4in6dn1s7rasxppn`) extracts structured batches from the **NYFA Opportunities Board** (`title`, `location`, `organization`, `url`, and card deadlines).
 2. **Batch Quality Gate** validates field presence rates across the entire output batch against typed contracts.
 3. **Automated Self-Healing Loop** synthesizes targeted repair prompts and calls `bdata scraper heal` + `approve`, maintaining the exact same collector ID.
-4. **Deadline Intelligence & Normalization** extracts and normalizes application deadlines to ISO `YYYY-MM-DD` (or `null` when genuinely unavailable), prioritizing submission dates.
+4. **Deadline Intelligence & Normalization** extracts and normalizes explicit application deadlines from titles and detail pages to ISO `YYYY-MM-DD` (or `null` when genuinely unavailable), avoiding fabricated dates.
 5. **Durable SQLite Storage** automatically deduplicates/upserts opportunities by `(source, url)` and records heal audit events.
 6. **Urgency-Ranked Dashboard** prioritizes opportunities by impending deadlines (`⚠️ Urgent (<7d)`, `Soon (<30d)`, `Open`, `Rolling`).
 
@@ -28,7 +28,7 @@ Independent artists, researchers, and creators constantly monitor fragmented pub
 
 - **Primary Source:** [NYFA Opportunities Board](https://www.nyfa.org/opportunities/)
 - **Collector ID:** `c_mt4in6dn1s7rasxppn` (configured in `.env` as `COLLECTOR_NYFA`)
-- **Verified Output:** 24 structured opportunities per batch (titles, organizations, locations, application URLs, and deadlines).
+- **Verified Raw Output:** 24 structured opportunities per batch (`title`, `organization`, `location`, `url`, and listing `deadline` when present on card).
 - **Target Selection Note:** Private residency and arts directories only. Strictly excludes `.gov` and public university domains (Hackathon Rule 7). *(Artist Communities Alliance was initially explored but dropped because Scraper Studio was unable to generate a stable template for that domain; NYFA is the fully verified primary source).*
 
 ---
@@ -115,6 +115,7 @@ OpenSignal/
 │   └── ci.yml                 # Automated testing and linting CI workflow
 ├── data/
 │   └── examples/              # Verified sample and live collector outputs
+│       ├── live_output_nyfa.json # Clean raw CLI payload from Scraper Studio
 │       ├── live_output_res.json # Live 24-record payload from Scraper Studio
 │       ├── _brightdata_stdout.txt # Live polling & stdout logs from Bright Data run
 │       └── sample_output.json # Baseline schema example
