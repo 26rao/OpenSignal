@@ -30,6 +30,8 @@ Independent artists, researchers, and creators constantly monitor fragmented pub
 - **Primary Source:** [NYFA Opportunities Board](https://www.nyfa.org/opportunities/)
 - **Collector ID:** `c_mt4in6dn1s7rasxppn` (configured in `.env` as `COLLECTOR_NYFA`)
 - **Verified Raw Output:** 24 structured opportunities per batch (`title`, `organization`, `location`, `url`, and listing `deadline` when present on card).
+- **Detail-Page Deadline Enrichment:** Parallel inspection of opportunity URLs extracts explicit application deadlines (23/24 opportunities populated with ISO `YYYY-MM-DD` dates; rolling/date-free listings cleanly set to `null`).
+- **Quality Gate Score:** 1.0 (100% presence of required playbook contract fields `title` and `url`).
 - **Target Selection Note:** Private residency and arts directories only. Strictly excludes `.gov` and public university domains (Hackathon Rule 7). *(Artist Communities Alliance was initially explored but dropped because Scraper Studio was unable to generate a stable template for that domain; NYFA is the fully verified primary source).*
 
 ---
