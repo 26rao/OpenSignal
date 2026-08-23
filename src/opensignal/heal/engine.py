@@ -60,8 +60,14 @@ class HealEngine:
         retry=retry_if_exception_type(HealCLIError),
     )
     def _run_cli(self, args: List[str]) -> subprocess.CompletedProcess:
+        from opensignal.core.config import settings
+
         cmd = _resolve_npx_cmd() + ["-p", "@brightdata/cli", "bdata"] + args
         logger.info("Running: %s", " ".join(cmd))
+        env = dict(os.environ)
+        if settings.bright_data_api_key:
+            env["BRIGHT_DATA_API_KEY"] = settings.bright_data_api_key
+            env["BRIGHTDATA_API_KEY"] = settings.bright_data_api_key
         try:
             result = subprocess.run(
                 cmd,
@@ -70,6 +76,7 @@ class HealEngine:
                 timeout=300,
                 encoding="utf-8",
                 errors="replace",
+                env=env,
             )
         except subprocess.TimeoutExpired as exc:
             raise HealCLIError(f"CLI timed out: {args}") from exc

@@ -114,6 +114,11 @@ class Orchestrator:
             url,
         )
 
+        env = dict(os.environ)
+        if self.settings.bright_data_api_key:
+            env["BRIGHT_DATA_API_KEY"] = self.settings.bright_data_api_key
+            env["BRIGHTDATA_API_KEY"] = self.settings.bright_data_api_key
+
         try:
             result = subprocess.run(
                 cmd,
@@ -121,7 +126,8 @@ class Orchestrator:
                 text=True,
                 timeout=180,
                 encoding="utf-8",
-                errors="replace"
+                errors="replace",
+                env=env,
             )
         except subprocess.TimeoutExpired as exc:
             raise CollectorCLIError(
