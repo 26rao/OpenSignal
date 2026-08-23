@@ -99,7 +99,7 @@ def extract_deadline_from_text(text: Optional[str], today: Optional[date] = None
     return None
 
 
-def fetch_detail_page_deadline(url: str, timeout: float = 5.0) -> Optional[str]:
+def fetch_detail_page_deadline(url: str, timeout: float = 3.0) -> Optional[str]:
     """Fetch an opportunity detail page and extract an explicit deadline if present.
 
     Resilient to 403, 404, timeouts, and network errors without crashing.
@@ -119,7 +119,7 @@ def fetch_detail_page_deadline(url: str, timeout: float = 5.0) -> Optional[str]:
 
 def enrich_opportunity_deadlines(
     records: List[Dict[str, Any]],
-    max_workers: int = 5,
+    max_workers: int = 15,
     today: Optional[date] = None,
 ) -> List[Dict[str, Any]]:
     """Enrich a batch of opportunities with normalized deadlines.

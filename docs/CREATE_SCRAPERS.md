@@ -11,10 +11,8 @@ Avoid public university research-office domains; they are a gray area under the 
 
 ### Primary Verified Target:
 - **NYFA Opportunities Board**: `https://www.nyfa.org/opportunities/`
-  - Verified active collector: `c_mt4in6dn1s7rasxppn` (configured in `.env` as `COLLECTOR_NYFA`)
-  - Directory structure: 24+ structured opportunities per batch with titles, locations, organizations, and application URLs.
-
-*(Note: `artistcommunities.org` was initially tested during exploratory development, but dropped because Scraper Studio was unable to generate a stable template for that domain. NYFA was selected and fully verified as the reliable primary source).*
+  - Verified active collector: `c_mt4ocq9ano4db5xji` (configured in `.env` as `COLLECTOR_NYFA`)
+  - Directory structure: 55 structured opportunities per batch with titles, locations, organizations, and application URLs.
 
 ---
 
@@ -38,23 +36,23 @@ Set the generated Collector ID in `.env` as `COLLECTOR_NYFA`.
 
 ### Stage B — Run Collector
 ```bash
-npx -p @brightdata/cli bdata scraper run c_mt4in6dn1s7rasxppn \
+npx -p @brightdata/cli bdata scraper run c_mt4ocq9ano4db5xji \
   "https://www.nyfa.org/opportunities/" --pretty
 ```
 
 ### Stage C — Self-Healing / Schema Expansion
 ```bash
-npx -p @brightdata/cli bdata scraper heal c_mt4in6dn1s7rasxppn \
-  "Add location and organization fields to each opportunity object. Keep title and url. Return consistent non-empty values when present on the page."
+npx -p @brightdata/cli bdata scraper heal c_mt4ocq9ano4db5xji \
+  "Repair the scraper so every output object includes a non-empty organization field when the organization name is visible on the listing card. Keep title and url unchanged. Same field names. Listing page only."
 
-npx -p @brightdata/cli bdata scraper approve c_mt4in6dn1s7rasxppn
+npx -p @brightdata/cli bdata scraper approve c_mt4ocq9ano4db5xji
 ```
 
 ### Stage D — Re-run Same Collector ID
 ```bash
-npx -p @brightdata/cli bdata scraper run c_mt4in6dn1s7rasxppn \
+npx -p @brightdata/cli bdata scraper run c_mt4ocq9ano4db5xji \
   "https://www.nyfa.org/opportunities/" --pretty
 ```
 
-The exact same `c_mt4in6dn1s7rasxppn` collector ID is maintained, data fields are expanded, and downstream orchestrator code runs seamlessly.
+The exact same `c_mt4ocq9ano4db5xji` collector ID is maintained, data fields are expanded, and downstream orchestrator code runs seamlessly.
 

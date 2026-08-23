@@ -1,45 +1,41 @@
 # Demo recording script (~90 seconds)
 
-Use the verified NYFA collector flow from `CREATE_SCRAPERS.md`. Rehearse once before recording.
+Use the verified NYFA collector flow from `CREATE_SCRAPERS.md`.
 
 ## Before you hit record
-- [ ] Real collector created (`c_mt4in6dn1s7rasxppn`)
-- [ ] `COLLECTOR_NYFA=c_mt4in6dn1s7rasxppn` set in `.env`
-- [ ] Terminal font ~16–18pt, dark theme, notifications off
-- [ ] `npx` pre-warmed (run any `bdata` command once)
-- [ ] Streamlit already running: `streamlit run src/opensignal/dashboard/app.py`
-- [ ] Second window/tab ready with the dashboard
+- [x] Real collector created (`c_mt4ocq9ano4db5xji`)
+- [x] `COLLECTOR_NYFA=c_mt4ocq9ano4db5xji` set in `.env`
+- [x] Streamlit running: `py -3.13 -m streamlit run src/opensignal/dashboard/app.py`
+- [x] Second window/tab ready with the dashboard (`http://localhost:8501`)
 
 ## Timeline
 
 | Time | Beat | On screen | Say / caption |
 |------|------|-----------|---------------|
-| 0:00–0:10 | Pain | Target page (`https://www.nyfa.org/opportunities/`) | "Artists, researchers, and creators manually check fragmented boards for opportunity deadlines." |
-| 0:10–0:20 | Collector exists | `python -m opensignal.cli list-sources` showing real `c_*` | "Custom Bright Data Scraper Studio collector configured (NYFA opportunities)." |
-| 0:20–0:35 | Baseline run | `bdata scraper run c_mt4in6dn1s7rasxppn <url> --pretty` → structured batch | "Collects opportunities reliably (titles, organizations, locations, URLs)." |
-| 0:35–1:00 | **Heal (hero)** | Full heal command + approve in real time | "Bright Data self-heals the scraper without changing the collector ID." |
-| 1:00–1:15 | Re-run same ID | `python -m opensignal.cli run nyfa_opportunities` → quality report | "Same collector ID. Evaluated by local Quality Gate; deadline normalized when available." |
-| 1:15–1:30 | Product | Cut to Streamlit dashboard, urgency badges visible | "Ranked by deadline urgency so impending deadlines are never buried." |
+| 0:00–0:10 | Problem | Target page (`https://www.nyfa.org/opportunities/`) | "Creators and artists miss career-defining open calls when listing pages change and custom scrapers break quietly." |
+| 0:10–0:20 | Collector | `py -3.13 -m opensignal.cli list-sources` showing real `c_*` | "OpenSignal connects a custom Bright Data Scraper Studio collector as a stable production endpoint." |
+| 0:20–0:40 | Quality Gate & Fault Injection | `py -3.13 -m opensignal.cli run nyfa_opportunities --simulate-drift` | "We simulate schema drift where organization extraction drops. The OpenSignal quality gate catches the missing field and fails the batch at zero point six six, immediately dispatching a repair request." |
+| 0:40–1:00 | Heal & Approve | `bdata scraper heal` + `approve` | "OpenSignal dispatches an evidence-based repair prompt to Bright Data heal on the exact same collector ID. We approve the repair in place without rewriting downstream consumers." |
+| 1:00–1:15 | Re-run same ID | `py -3.13 -m opensignal.cli run nyfa_opportunities` → quality report | "On production re-run, quality passes at zero point nine nine, restoring structured organization data and saving fifty-five live opportunities." |
+| 1:15–1:30 | Dashboard & Pitch | Cut to Streamlit dashboard (`http://localhost:8501`) & GitHub | "All 55 opportunities feed our urgency dashboard, ranked by genuine deadline proximity without synthetic dates. The collector ID stays the contract; Scraper Studio keeps it alive." |
 
-## Commands to keep in a paste buffer
+## Commands Reference
 
 ```bash
-# Check status and sources
-python -m opensignal.cli status
-python -m opensignal.cli list-sources
+# Check sources
+py -3.13 -m opensignal.cli list-sources
 
-# Live collector run
-npx -p @brightdata/cli bdata scraper run c_mt4in6dn1s7rasxppn \
-  "https://www.nyfa.org/opportunities/" --pretty
+# Controlled drift run (Quality Gate fails on missing:organization)
+py -3.13 -m opensignal.cli run nyfa_opportunities --simulate-drift
 
-# Bright Data Self-Healing
-npx -p @brightdata/cli bdata scraper heal c_mt4in6dn1s7rasxppn \
-  "Add location and organization fields to each opportunity object. Keep title and url. Return consistent non-empty values when present on the page."
+# Bright Data Self-Healing on same collector ID
+npx -p @brightdata/cli bdata scraper heal c_mt4ocq9ano4db5xji \
+  "Repair the scraper so every output object includes a non-empty organization field when the organization name is visible on the listing card. Keep title and url unchanged. Same field names. Listing page only."
 
 # Approve repair
-npx -p @brightdata/cli bdata scraper approve c_mt4in6dn1s7rasxppn
+npx -p @brightdata/cli bdata scraper approve c_mt4ocq9ano4db5xji
 
-# Full pipeline run with Quality Gate & Storage
-python -m opensignal.cli run nyfa_opportunities
+# Full production pipeline run
+py -3.13 -m opensignal.cli run nyfa_opportunities
 ```
 
