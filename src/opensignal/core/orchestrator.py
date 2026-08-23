@@ -260,6 +260,8 @@ class Orchestrator:
         self,
         name: str,
         force_heal: bool = False,
+        simulate_drift: bool = False,
+        drift_field: str = "organization",
     ) -> Dict[str, Any]:
 
         if name not in self.playbooks:
@@ -280,6 +282,15 @@ class Orchestrator:
             playbook.collector_id,
             playbook.base_url,
         )
+
+        if simulate_drift:
+            logger.warning(
+                "Simulating schema drift: stripping '%s' from all %d records",
+                drift_field,
+                len(records),
+            )
+            for r in records:
+                r[drift_field] = None
 
         summary["records_fetched"] = len(records)
         records = enrich_opportunity_deadlines(records)
@@ -381,6 +392,7 @@ class Orchestrator:
     def run_all(
         self,
         force_heal: bool = False,
+        simulate_drift: bool = False,
     ) -> List[Dict[str, Any]]:
 
         results: List[Dict[str, Any]] = []
@@ -408,6 +420,7 @@ class Orchestrator:
                     self.run_one(
                         name,
                         force_heal=force_heal,
+                        simulate_drift=simulate_drift,
                     )
                 )
 

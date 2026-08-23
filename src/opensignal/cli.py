@@ -28,15 +28,18 @@ def run(
     source: Optional[str] = typer.Argument(None, help="Source name; omit with --all"),
     all: bool = typer.Option(False, "--all", help="Run every enabled source"),
     force_heal: bool = typer.Option(False, help="Force heal even if quality passes"),
+    simulate_drift: bool = typer.Option(
+        False, "--simulate-drift", help="Simulate schema drift (e.g. missing organization)"
+    ),
 ):
     """Run: scrape → quality gate → heal if needed → store."""
     _setup_logging()
     orch = Orchestrator(settings)
 
     if all or source is None:
-        results = orch.run_all(force_heal=force_heal)
+        results = orch.run_all(force_heal=force_heal, simulate_drift=simulate_drift)
     else:
-        results = [orch.run_one(source, force_heal=force_heal)]
+        results = [orch.run_one(source, force_heal=force_heal, simulate_drift=simulate_drift)]
 
     table = Table(title="OpenSignal Run Summary")
     table.add_column("Source")

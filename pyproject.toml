@@ -2,7 +2,7 @@
 name = "opensignal"
 version = "0.1.0"
 description = "Self-healing long-tail opportunity monitor built with Bright Data Scraper Studio"
-requires-python = ">=3.11"
+requires-python = ">=3.10"
 dependencies = []
 
 [tool.ruff]
