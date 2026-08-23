@@ -71,6 +71,18 @@ def default_playbooks(settings: Settings) -> Dict[str, SourcePlaybook]:
         FieldSpec(name="organization", required=False, description="Host org if present"),
     ]
 
+    nyfa_fields = [
+        FieldSpec(name="title", required=True, description="Call or residency title"),
+        FieldSpec(
+            name="deadline",
+            required=False,
+            description="Application deadline when present on the page",
+        ),
+        FieldSpec(name="url", required=True, description="Detail or apply URL"),
+        FieldSpec(name="location", required=False, description="City/country if present"),
+        FieldSpec(name="organization", required=True, description="Host org if present"),
+    ]
+
     return {
         "artist_communities": SourcePlaybook(
             name="artist_communities",
@@ -88,7 +100,7 @@ def default_playbooks(settings: Settings) -> Dict[str, SourcePlaybook]:
             collector_id=nyfa_id,
             base_url="https://www.nyfa.org/opportunities/",
             description="NYFA Opportunities Board — open calls, residencies, grants",
-            required_fields=common_fields,
+            required_fields=nyfa_fields,
             quality_threshold=settings.quality_threshold,
             enabled=nyfa_id != "c_REPLACE_ME",
         ),

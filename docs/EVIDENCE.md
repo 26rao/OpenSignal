@@ -49,6 +49,29 @@ npx -p @brightdata/cli bdata scraper run c_mt4in6dn1s7rasxppn \
 3. **No Fabricated Deadlines:** In accordance with data integrity rules, unlisted deadlines are left as `null` in the raw data rather than being synthetic or guessed.
 4. **Pipeline Enrichment & Quality Gate:** The local Python pipeline inspects titles and opportunity detail pages for explicit submission dates, normalizes valid dates to ISO `YYYY-MM-DD`, and evaluates quality contracts (`title`, `url` required=True).
 
+### E. Controlled Drift & Self-Healing Verification (Break → Fail → Heal → Pass)
+
+> **Controlled drift test:** disabled `organization` extraction on collector `c_mt4in6dn1s7rasxppn`, confirmed quality failure, ran `bdata scraper heal` + `approve` on the same ID, re-ran, and recovered `organization` without creating a new collector. Artifacts: [`data/examples/heal_proof/01_baseline.json`](../data/examples/heal_proof/01_baseline.json), [`data/examples/heal_proof/02_broken.json`](../data/examples/heal_proof/02_broken.json), [`data/examples/heal_proof/03_after_heal.json`](../data/examples/heal_proof/03_after_heal.json).
+
+#### Proof Artifacts & Stage Metrics:
+1. **`01_baseline.json`** — Healthy live run:
+   - Records: 24
+   - `title`: 100% (24/24), `url`: 100% (24/24), `organization`: 100% (24/24), `location`: 100% (24/24)
+   - Quality score: `1.0` (Passed)
+2. **`02_broken.json`** — Simulating schema drift / broken extraction:
+   - `organization` mapping disabled in scraper definition
+   - Quality score: `0.667` (Failed quality gate threshold `0.85`)
+   - Missing required: `['organization']`
+   - Generated Heal Prompt:
+     ```text
+     These required fields are empty on every one of 24 records: organization. Repair the scraper so every output object consistently includes non-empty title, url, organization fields when those values exist on the page. Keep the same output schema and field names.
+     ```
+3. **`03_after_heal.json`** — Post-repair on exact same collector ID:
+   - Healed via Bright Data Scraper Studio & approved (`bdata scraper approve c_mt4in6dn1s7rasxppn`)
+   - `organization` restored to 100% (24/24)
+   - Quality score: `1.0` (Passed)
+   - Audit Lineage: Persisted to `heal_events` table and `data/heal_history/`.
+
 ---
 
 ## 3. End-to-End CLI Pipeline Run
@@ -79,7 +102,7 @@ python -m opensignal.cli run nyfa_opportunities
   }
 ]
 ```
-*(Note: Quality score 1.0 reflects 100% presence of the required playbook contract fields `title` and `url`).*
+*(Note: Quality score 1.0 reflects 100% presence of required playbook contract fields `title`, `url`, and `organization`).*
 
 ---
 
@@ -87,5 +110,5 @@ python -m opensignal.cli run nyfa_opportunities
 
 - **Code & Test Suite:** Completed (all 9 unit tests pass).
 - **Live Scraper Studio Collector:** Verified on participant account (`c_mt4in6dn1s7rasxppn`).
-- **Raw Output Artifacts:** Committed in [`data/examples/live_output_res.json`](../data/examples/live_output_res.json).
-- **Demo Video:** **Not yet recorded / pending recording by participant** following [`docs/DEMO.md`](DEMO.md).
+- **Raw Output Artifacts:** Committed in [`data/examples/live_output_res.json`](../data/examples/live_output_res.json) and [`data/examples/heal_proof/`](../data/examples/heal_proof/).
+- **Demo Video:** Ready for recording following [`docs/DEMO.md`](DEMO.md).
