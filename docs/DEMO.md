@@ -1,5 +1,7 @@
 # Demo recording script (~90 seconds)
 
+> 🎬 **YouTube Video Link:** [https://youtu.be/qVLbth3hI7Q](https://youtu.be/qVLbth3hI7Q)
+
 Use the verified NYFA collector flow from `CREATE_SCRAPERS.md`.
 
 ## Before you hit record

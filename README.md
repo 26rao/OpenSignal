@@ -7,7 +7,7 @@
 
 > **Self-healing long-tail opportunity monitor for artists, researchers, and creators.**  
 > Built for the **Into the Scrape-Verse** hackathon (WeMakeDevs × Bright Data, August 2026).  
-> 📹 **Demo Walkthrough Script:** [`docs/DEMO.md`](docs/DEMO.md)
+> 📹 **Demo Link:** https://youtu.be/qVLbth3hI7Q
 
 ---
 
@@ -234,19 +234,6 @@ pytest
 - **Ethical Targets**: Only targets public artist directories (NYFA Opportunities Board).
 - **Rule 7 Compliance**: Strictly excludes `.gov` and public government research offices.
 - **AI Disclosure**: Transparent AI usage disclosure provided in [DISCLOSURE.md](DISCLOSURE.md).
-
----
-
-## 📋 Submission Checklist
-
-- [x] Custom Scraper Studio scraper created on participant account (`c_mt4ocq9ano4db5xji`)
-- [x] Public source-code repository
-- [x] Accurate & comprehensive README
-- [x] Clean structured output from a **live** run ([`data/examples/live_output_nyfa.json`](data/examples/live_output_nyfa.json))
-- [x] Documented self-healing execution & evidence ([`docs/EVIDENCE.md`](docs/EVIDENCE.md))
-- [x] Explanation of how Bright Data Scraper Studio is used
-- [x] AI assistance disclosed in [`DISCLOSURE.md`](DISCLOSURE.md)
-- [x] Demo video recording following [`docs/DEMO.md`](docs/DEMO.md)
 
 ---
 

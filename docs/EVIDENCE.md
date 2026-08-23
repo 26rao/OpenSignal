@@ -108,4 +108,4 @@ py -3.13 -m opensignal.cli run nyfa_opportunities
 - **Code & Test Suite:** Completed (all 9 unit tests pass).
 - **Live Scraper Studio Collector:** Verified on participant account (`c_mt4ocq9ano4db5xji`).
 - **Raw Output Artifacts:** Committed in [`data/examples/live_output_res.json`](../data/examples/live_output_res.json) and [`data/examples/heal_proof/`](../data/examples/heal_proof/).
-- **Demo Video:** Recorded following [`docs/DEMO.md`](docs/DEMO.md).
+- **Demo Video:** Recorded and published at [https://youtu.be/qVLbth3hI7Q](https://youtu.be/qVLbth3hI7Q) (following [`docs/DEMO.md`](docs/DEMO.md)).
